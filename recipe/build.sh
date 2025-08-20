@@ -18,11 +18,6 @@ function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
 
-write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
-write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
-write_to_bazelrc "build --logging=6"
-write_to_bazelrc "build --verbose_failures"
-write_to_bazelrc "build --toolchain_resolution_debug"
 write_to_bazelrc "build -c opt"
 write_to_bazelrc "build --cxxopt=-std=c++17"
 write_to_bazelrc "build --host_cxxopt=-std=c++17"
@@ -31,6 +26,12 @@ write_to_bazelrc "build --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "build --incompatible_default_to_explicit_init_py"
 write_to_bazelrc "build --enable_platform_specific_config"
 write_to_bazelrc "build --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
+# Cross-compiling with bazel-toolchain
+write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
+write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
+write_to_bazelrc "build --logging=6"
+write_to_bazelrc "build --verbose_failures"
+write_to_bazelrc "build --toolchain_resolution_debug"
 write_to_bazelrc "test --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
 write_to_bazelrc "test --action_env PYTHON_VERSION=${PYTHON_VERSION}"
 write_to_bazelrc "test --test_timeout=300"
