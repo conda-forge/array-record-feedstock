@@ -2,6 +2,11 @@
 
 set -xe
 
+# Workaround missing leading whitespace for mcpu stripping in bazel-toolchain
+export CFLAGS=" ${CFLAGS}"
+export CXXFLAGS=" ${CXXFLAGS}"
+export CONDA_BAZEL_TOOLCHAIN_PPC64LE_CPU="ppc"
+
 export PYTHON_VERSION=$(${PYTHON} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 export PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1)
 export PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2)
@@ -25,6 +30,9 @@ write_to_bazelrc "build --experimental_repo_remote_exec"
 write_to_bazelrc "build --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "build --incompatible_default_to_explicit_init_py"
 write_to_bazelrc "build --enable_platform_specific_config"
+write_to_bazelrc "build --local_resources=cpu=\"${CPU_COUNT}\""
+write_to_bazelrc "build --logging=6"
+write_to_bazelrc "build --verbose_failures"
 write_to_bazelrc "build --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
 write_to_bazelrc "test --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
 write_to_bazelrc "test --action_env PYTHON_VERSION=${PYTHON_VERSION}"
@@ -33,15 +41,14 @@ write_to_bazelrc "test --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "common --check_direct_dependencies=error"
 
 # Cross-compiling with bazel-toolchain
-write_to_bazelrc "build --platforms=//bazel_toolchain:target_platform"
-write_to_bazelrc "build --host_platform=//bazel_toolchain:build_platform"
-write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
-write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain"
-write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
-write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
-write_to_bazelrc "build --local_resources=cpu=\"${CPU_COUNT}\""
-write_to_bazelrc "build --logging=6"
-write_to_bazelrc "build --verbose_failures"
+if [ "$CONDA_BUILD_CROSS_COMPILATION" = "1" ]; then
+  write_to_bazelrc "build --platforms=//bazel_toolchain:target_platform"
+  write_to_bazelrc "build --host_platform=//bazel_toolchain:build_platform"
+  write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
+  write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain"
+  write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
+  write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
+fi
 
 export USE_BAZEL_VERSION="${BAZEL_VERSION}"
 bazel clean
