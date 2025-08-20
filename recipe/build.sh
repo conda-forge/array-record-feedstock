@@ -19,11 +19,6 @@ setup_env_vars_py "$PYTHON_MAJOR_VERSION" "$PYTHON_MINOR_VERSION"
 
 source gen-bazel-toolchain
 
-if [[ "${target_platform}" == linux-* ]]; then
-  $RECIPE_DIR/add_py_toolchain.sh
-  EXTRA_BAZEL_ARGS="--extra_toolchains=//py_toolchain:py_toolchain"
-fi
-
 function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
