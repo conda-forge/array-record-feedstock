@@ -2,6 +2,10 @@
 
 set -xe
 
+# Workaround missing leading whitespace for mcpu stripping in bazel-toolchain
+export CFLAGS=" ${CFLAGS}"
+export CXXFLAGS=" ${CXXFLAGS}"
+
 export PYTHON_VERSION=$(${PYTHON} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 export PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1)
 export PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2)
