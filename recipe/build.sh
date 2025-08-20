@@ -2,6 +2,11 @@
 
 set -xe
 
+# Workaround missing leading whitespace for mcpu stripping in bazel-toolchain
+export CFLAGS=" ${CXXFLAGS}"
+export CXXFLAGS=" ${CXXFLAGS}"
+export CONDA_BAZEL_TOOLCHAIN_PPC64LE_CPU="ppc"
+
 export PYTHON_VERSION=$(${PYTHON} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 export PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1)
 export PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2)
@@ -13,6 +18,11 @@ export SOURCE_DIR="."
 setup_env_vars_py "$PYTHON_MAJOR_VERSION" "$PYTHON_MINOR_VERSION"
 
 source gen-bazel-toolchain
+
+if [[ "${target_platform}" == linux-* ]]; then
+  $RECIPE_DIR/add_py_toolchain.sh
+  EXTRA_BAZEL_ARGS="--extra_toolchains=//py_toolchain:py_toolchain"
+fi
 
 function write_to_bazelrc() {
   echo "$1" >> .bazelrc
@@ -39,6 +49,7 @@ write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
 write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain"
 write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
 write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
+write_to_bazelrc "build --local_cpu_resources=\"${CPU_COUNT}\""
 write_to_bazelrc "build --logging=6"
 write_to_bazelrc "build --verbose_failures"
 
