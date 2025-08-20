@@ -41,7 +41,7 @@ write_to_bazelrc "test --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "common --check_direct_dependencies=error"
 
 # Cross-compiling with bazel-toolchain
-if [ "$CONDA_BUILD_CROSS_COMPILATION" = "1" ]; then
+if [[ "${CONDA_BUILD_CROSS_COMPILATION}" == "1" ]]; then
   write_to_bazelrc "build --platforms=//bazel_toolchain:target_platform"
   write_to_bazelrc "build --host_platform=//bazel_toolchain:build_platform"
   write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
