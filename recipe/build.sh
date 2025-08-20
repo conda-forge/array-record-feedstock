@@ -2,11 +2,6 @@
 
 set -xe
 
-# Workaround missing leading whitespace for mcpu stripping in bazel-toolchain
-export CFLAGS=" ${CFLAGS}"
-export CXXFLAGS=" ${CXXFLAGS}"
-export CONDA_BAZEL_TOOLCHAIN_PPC64LE_CPU="ppc"
-
 export PYTHON_VERSION=$(${PYTHON} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 export PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1)
 export PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2)
@@ -41,7 +36,7 @@ write_to_bazelrc "test --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "common --check_direct_dependencies=error"
 
 # Cross-compiling with bazel-toolchain
-if [[ "${CONDA_BUILD_CROSS_COMPILATION}" == "1" ]]; then
+if [[ "$build_platform" != "$target_platform" ]]; then
   write_to_bazelrc "build --platforms=//bazel_toolchain:target_platform"
   write_to_bazelrc "build --host_platform=//bazel_toolchain:build_platform"
   write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
