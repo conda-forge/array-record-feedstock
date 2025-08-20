@@ -12,10 +12,17 @@ export SOURCE_DIR="."
 
 setup_env_vars_py "$PYTHON_MAJOR_VERSION" "$PYTHON_MINOR_VERSION"
 
+source gen-bazel-toolchain
+
 function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
 
+write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
+write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
+write_to_bazelrc "build --logging=6"
+write_to_bazelrc "build --verbose_failures"
+write_to_bazelrc "build --toolchain_resolution_debug"
 write_to_bazelrc "build -c opt"
 write_to_bazelrc "build --cxxopt=-std=c++17"
 write_to_bazelrc "build --host_cxxopt=-std=c++17"
@@ -51,7 +58,7 @@ rsync -avm -L  --include="*${SHLIB_EXT}" --include="*_pb2.py" \
 previous_wd="$(pwd)"
 cd "${TMPDIR}"
 printf '%s : === Building wheel\n' "$(date)"
-$PYTHON setup.py bdist_wheel --python-tag py3"${PYTHON_MINOR_VERSION}"
+$PYTHON setup.py bdist_wheel --python-tag py"${PYTHON_MAJOR_VERSION}""${PYTHON_MINOR_VERSION}"
 
 cp dist/*.whl "${DEST}"
 

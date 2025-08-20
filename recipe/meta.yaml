@@ -1,6 +1,7 @@
 {% set name = "array-record" %}
 {% set version = "0.8.0a1" %}
 {% set sha256 = "60d73cd0f038de7a1e8c376b143a5a148b85b1fc316569f4c73a33b8be3dbf80" %}
+# Modify BAZEL_VERSION in build.sh when updated
 {% set bazel_version = "7.2.1" %}
 
 package:
@@ -12,10 +13,9 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 0
+  number: 1
   skip: true  # [py<310]
   skip: true  # [win]
-  skip: true  # [osx]
 
 requirements:
   build:
@@ -24,7 +24,8 @@ requirements:
     - numpy        # [target_platform != build_platform]
     - setuptools   # [target_platform != build_platform]
     - wheel        # [target_platform != build_platform]
-    - bazel 7.2.1
+    - bazel {{ bazel_version }}
+    - bazel-toolchain >=0.3.0
     - rsync
     - {{ compiler('c') }}
     - {{ stdlib('c') }}
@@ -49,8 +50,8 @@ requirements:
 test:
   imports:
     - array_record
-  files:
-    - test_array_record.py
+  commands:
+    - python -c "from array_record.python import array_record_data_source"
   requires:
     - pip
     - python
@@ -64,10 +65,12 @@ about:
     read, write, and random access by record index. ArrayRecord builds on top of Riegeli
     and supports the same compression algorithms.
   license: Apache-2.0
+  license_family: Apache
   license_file: LICENSE
-  dev_url: https://github.com/google/array-record/
+  dev_url: https://github.com/google/array_record
 
 extra:
   recipe-maintainers:
     - iindyk
     - mtsokol
+    - ehfd
