@@ -2,11 +2,6 @@
 
 set -xe
 
-# Workaround missing leading whitespace for mcpu stripping in bazel-toolchain
-export CFLAGS=" ${CXXFLAGS}"
-export CXXFLAGS=" ${CXXFLAGS}"
-export CONDA_BAZEL_TOOLCHAIN_PPC64LE_CPU="ppc"
-
 export PYTHON_VERSION=$(${PYTHON} -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 export PYTHON_MAJOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f1)
 export PYTHON_MINOR_VERSION=$(echo $PYTHON_VERSION | cut -d. -f2)
@@ -44,7 +39,7 @@ write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
 write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain"
 write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
 write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
-write_to_bazelrc "build --local_cpu_resources=\"${CPU_COUNT}\""
+write_to_bazelrc "build --local_resources=cpu=\"${CPU_COUNT}\""
 write_to_bazelrc "build --logging=6"
 write_to_bazelrc "build --verbose_failures"
 
