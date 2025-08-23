@@ -12,6 +12,8 @@ export SOURCE_DIR="."
 
 setup_env_vars_py "$PYTHON_MAJOR_VERSION" "$PYTHON_MINOR_VERSION"
 
+source gen-bazel-toolchain
+
 function write_to_bazelrc() {
   echo "$1" >> .bazelrc
 }
@@ -23,12 +25,25 @@ write_to_bazelrc "build --experimental_repo_remote_exec"
 write_to_bazelrc "build --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "build --incompatible_default_to_explicit_init_py"
 write_to_bazelrc "build --enable_platform_specific_config"
+write_to_bazelrc "build --local_resources=cpu=\"${CPU_COUNT}\""
+write_to_bazelrc "build --logging=6"
+write_to_bazelrc "build --verbose_failures"
 write_to_bazelrc "build --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
 write_to_bazelrc "test --@rules_python//python/config_settings:python_version=${PYTHON_VERSION}"
 write_to_bazelrc "test --action_env PYTHON_VERSION=${PYTHON_VERSION}"
 write_to_bazelrc "test --test_timeout=300"
 write_to_bazelrc "test --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "common --check_direct_dependencies=error"
+
+# Cross-compiling with bazel-toolchain
+if [[ "$build_platform" != "$target_platform" ]]; then
+  write_to_bazelrc "build --platforms=//bazel_toolchain:target_platform"
+  write_to_bazelrc "build --host_platform=//bazel_toolchain:build_platform"
+  write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_toolchain"
+  write_to_bazelrc "build --extra_toolchains=//bazel_toolchain:cc_cf_host_toolchain"
+  write_to_bazelrc "build --crosstool_top=//bazel_toolchain:toolchain"
+  write_to_bazelrc "build --cpu=\"${TARGET_CPU}\""
+fi
 
 export USE_BAZEL_VERSION="${BAZEL_VERSION}"
 bazel clean
@@ -51,7 +66,7 @@ rsync -avm -L  --include="*${SHLIB_EXT}" --include="*_pb2.py" \
 previous_wd="$(pwd)"
 cd "${TMPDIR}"
 printf '%s : === Building wheel\n' "$(date)"
-$PYTHON setup.py bdist_wheel --python-tag py3"${PYTHON_MINOR_VERSION}"
+$PYTHON setup.py bdist_wheel --python-tag py"${PYTHON_MAJOR_VERSION}""${PYTHON_MINOR_VERSION}"
 
 cp dist/*.whl "${DEST}"
 
