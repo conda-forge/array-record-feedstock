@@ -10,6 +10,9 @@ export OUTPUT_DIR="$(pwd)"
 export SOURCE_DIR="."
 . "./oss/runner_common.sh"
 
+# Workaround for a timestamp issue: https://github.com/prefix-dev/rattler-build/issues/1865
+touch -m -t 203510100101 $(find $BUILD_PREFIX/share/bazel/install -type f)
+
 setup_env_vars_py "$PYTHON_MAJOR_VERSION" "$PYTHON_MINOR_VERSION"
 
 function write_to_bazelrc() {
