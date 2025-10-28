@@ -32,6 +32,10 @@ write_to_bazelrc "test --action_env PYTHON_VERSION=${PYTHON_VERSION}"
 write_to_bazelrc "test --test_timeout=300"
 write_to_bazelrc "test --python_path=\"${PYTHON_BIN}\""
 write_to_bazelrc "common --check_direct_dependencies=error"
+# Reduce noise during build.
+write_to_bazelrc "build --cxxopt=-Wno-deprecated-declarations --host_cxxopt=-Wno-deprecated-declarations"
+write_to_bazelrc "build --cxxopt=-Wno-parentheses --host_cxxopt=-Wno-parentheses"
+write_to_bazelrc "build --cxxopt=-Wno-sign-compare --host_cxxopt=-Wno-sign-compare"
 
 export USE_BAZEL_VERSION="${BAZEL_VERSION}"
 bazel clean
