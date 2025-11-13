@@ -1,6 +1,6 @@
 {% set name = "array-record" %}
-{% set version = "0.8.2" %}
-{% set sha256 = "9f4da596781fc5bd5b7ca9fd93559eb1555ee71689dea180cdcbc62b2440dbd4" %}
+{% set version = "0.8.3" %}
+{% set sha256 = "d43ffceb77110a18eda2dc38384e3ef77aa0acdd0fe0b6f27756a2799fdaae87" %}
 {% set bazel_version = "7.2.1" %}
 
 package:
@@ -12,7 +12,7 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 1
+  number: 0
   skip: true  # [py<311]
   skip: true  # [win]
   skip: true  # [osx]
