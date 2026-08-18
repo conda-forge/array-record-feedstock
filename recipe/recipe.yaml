@@ -1,13 +1,12 @@
 schema_version: 1
 
 context:
-  name: array-record
   version: "0.8.3"
   sha256: d43ffceb77110a18eda2dc38384e3ef77aa0acdd0fe0b6f27756a2799fdaae87
   bazel_version: "7.2.1"
 
 package:
-  name: ${{ name|lower }}
+  name: array-record
   version: ${{ version }}
 
 source:
