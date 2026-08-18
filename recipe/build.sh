@@ -69,3 +69,6 @@ cd "${previous_wd}"
 printf '%s : === Output wheel file is in: %s\n' "$(date)" "${DEST}"
 
 $PYTHON -m pip install "${DEST}"/array_record*.whl
+
+# bazel creates a bunch of u-w directories in BUILD_PREFIX, breaking cleanup
+chmod -R u+w "${BUILD_PREFIX}"/share/bazel
