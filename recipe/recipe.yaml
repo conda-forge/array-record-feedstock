@@ -17,7 +17,6 @@ build:
   number: 1
   skip:
     - match(python, "<3.11")
-    - osx
     - win
 
 requirements:
@@ -34,6 +33,24 @@ requirements:
     - ${{ compiler('c') }}
     - ${{ stdlib('c') }}
     - ${{ compiler('cxx') }}
+    - if: osx
+      then:
+        # Why bazel-toolchain:
+        # - Bazel's builtin C++ toolchain autoconfiguration reaches for the
+        #   std*.h headers from the real Xcode SDK instead of the ones under
+        #   CONDA_BUILD_SYSROOT.
+        # - bazel-toolchain generates a crosstool from the active conda
+        #   compilers, and build.sh tells bazel to use that instead.
+        #
+        # Why pinned <0.5:
+        # - 0.5.0 ("Adjust for bazel9") made the generated BUILD files load
+        #   @rules_cc//cc/toolchains and @rules_cc//cc/common.
+        # - Those packages don't exist in the rules_cc version which
+        #   array_record's MODULE.bazel resolves to, breaking the build with
+        #   a "cc/toolchains is not a package" error.
+        # - <0.5 still uses plain Bazel-builtin cc_toolchain rules under the
+        #   same //bazel_toolchain:* labels, so it stays compatible.
+        - bazel-toolchain <0.5
   host:
     - python
     - pip
