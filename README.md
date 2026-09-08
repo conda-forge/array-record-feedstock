@@ -272,4 +272,5 @@ Feedstock Maintainers
 * [@iindyk](https://github.com/iindyk/)
 * [@mgorny](https://github.com/mgorny/)
 * [@mtsokol](https://github.com/mtsokol/)
+* [@pb01ka](https://github.com/pb01ka/)
 
