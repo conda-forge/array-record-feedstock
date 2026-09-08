@@ -1,0 +1,103 @@
+schema_version: 1
+
+context:
+  version: "0.8.3"
+  sha256: d43ffceb77110a18eda2dc38384e3ef77aa0acdd0fe0b6f27756a2799fdaae87
+  bazel_version: "7.2.1"
+
+package:
+  name: array-record
+  version: ${{ version }}
+
+source:
+  url: https://github.com/google/array_record/archive/v${{ version }}.tar.gz
+  sha256: ${{ sha256 }}
+
+build:
+  number: 1
+  skip:
+    - match(python, "<3.11")
+    - win
+
+requirements:
+  build:
+    - if: target_platform != build_platform
+      then:
+        - python
+        - pip
+        - numpy
+        - setuptools
+        - wheel
+    - bazel 7.2.1.*
+    - rsync
+    - ${{ compiler('c') }}
+    - ${{ stdlib('c') }}
+    - ${{ compiler('cxx') }}
+    - if: osx
+      then:
+        # Why bazel-toolchain:
+        # - Bazel's builtin C++ toolchain autoconfiguration reaches for the
+        #   std*.h headers from the real Xcode SDK instead of the ones under
+        #   CONDA_BUILD_SYSROOT.
+        # - bazel-toolchain generates a crosstool from the active conda
+        #   compilers, and build.sh tells bazel to use that instead.
+        #
+        # Why pinned <0.5:
+        # - 0.5.0 ("Adjust for bazel9") made the generated BUILD files load
+        #   @rules_cc//cc/toolchains and @rules_cc//cc/common.
+        # - Those packages don't exist in the rules_cc version which
+        #   array_record's MODULE.bazel resolves to, breaking the build with
+        #   a "cc/toolchains is not a package" error.
+        # - <0.5 still uses plain Bazel-builtin cc_toolchain rules under the
+        #   same //bazel_toolchain:* labels, so it stays compatible.
+        - bazel-toolchain <0.5
+  host:
+    - python
+    - pip
+    - numpy
+    - setuptools
+    - wheel
+  run:
+    - python
+    - etils
+    - absl-py
+    - numpy
+    - more-itertools >=9.1.0
+    - typing_extensions
+    - importlib_resources
+    - zipp
+    - fsspec
+
+tests:
+  - python:
+      imports:
+        - array_record
+      pip_check: true
+  - files:
+      recipe:
+        - test_array_record.py
+    requirements:
+      run:
+        - pip
+        - python
+    script:
+      - python test_array_record.py
+
+about:
+  summary: ArrayRecord file format.
+  description: |
+    ArrayRecord is a new file format derived from [Riegeli](https://github.com/google/riegeli),
+    achieving a new frontier of IO efficiency. We designed ArrayRecord to support parallel
+    read, write, and random access by record index. ArrayRecord builds on top of Riegeli
+    and supports the same compression algorithms.
+  license: Apache-2.0
+  license_file: LICENSE
+  homepage: https://pypi.org/project/array-record/
+  repository: https://github.com/google/array-record/
+
+extra:
+  recipe-maintainers:
+    - iindyk
+    - mtsokol
+    - mgorny
+    - pb01ka
