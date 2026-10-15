@@ -1,8 +1,8 @@
 schema_version: 1
 
 context:
-  version: "0.8.3"
-  sha256: d43ffceb77110a18eda2dc38384e3ef77aa0acdd0fe0b6f27756a2799fdaae87
+  version: "0.8.5"
+  sha256: d3e1dbbdbf42433f90d72654ed5fc7ad20eee1c3820a5d41f4f9df98968f83f4
   bazel_version: "7.2.1"
 
 package:
@@ -14,7 +14,7 @@ source:
   sha256: ${{ sha256 }}
 
 build:
-  number: 1
+  number: 0
   skip:
     - match(python, "<3.11")
     - win
